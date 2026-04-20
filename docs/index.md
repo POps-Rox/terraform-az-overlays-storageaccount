@@ -257,7 +257,7 @@ By default, this module will create a resource group and the name of the resourc
 | [azurerm_storage_queue.queue](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_queue) | resource |
 | [azurerm_storage_share.share](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_share) | resource |
 | [azurerm_storage_table.table](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_table) | resource |
-| [popsrox_utils_resource_name.sa](https://registry.terraform.io/providers/POps-Rox/azutils/latest/docs/data-sources/resource_name) | data source |
+| [popsrox_resource_name.sa](https://registry.terraform.io/providers/POps-Rox/azutils/latest/docs/data-sources/resource_name) | data source |
 | [azurerm_private_endpoint_connection.pip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/private_endpoint_connection) | data source |
 | [azurerm_virtual_network.vnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/virtual_network) | data source |
 
