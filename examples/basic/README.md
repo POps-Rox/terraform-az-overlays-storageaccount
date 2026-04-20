@@ -13,7 +13,7 @@ provider "azurerm" {
 }
 
 module "mod_rg" {
-  source = "azurenoops/overlays-resource-group/azurerm"
+  source = "POps-Rox/overlays-resource-group/azurerm"
   version = "~> 1.0.1"
 
   // Resource group name and location
@@ -40,7 +40,7 @@ resource "azurerm_user_assigned_identity" "example" {
 }
 
 module "mod_storage" {
-  source  = "azurenoops/overlays-storage-account/azurerm"
+  source  = "POps-Rox/overlays-storage-account/azurerm"
   version = "~> 1.0.0"
 
   # By default, this module will not create a resource group
