@@ -65,7 +65,7 @@ locals {
   "outputs": {
     "telemetry": {
       "type": "String",
-      "value": "For more information, see https://aka.ms/azurenoops/tf/telemetry"
+      "value": "For more information, see https://aka.ms/POps-Rox/tf/telemetry"
     }
   }
 }
