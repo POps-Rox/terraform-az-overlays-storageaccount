@@ -1,5 +1,44 @@
 # Changelog
 
+## [2.0.0] - 2026-05-11
+
+### ⚠️ Breaking Changes
+
+- Upgraded `hashicorp/azurerm` provider from `~> 3.116` to `~> 4.20`.
+- Minimum Terraform CLI version raised from `>= 1.9` to `>= 1.10`.
+- Renamed `enable_https_traffic_only` → `https_traffic_only_enabled` on `azurerm_storage_account`
+  (azurerm 4.x attribute rename). The module input variable `https_traffic_only_enabled` is
+  unchanged; only the resource argument name was updated internally.
+
+### Behavior Notes
+
+- `retention_policy` blocks on `azurerm_monitor_diagnostic_setting` were audited and **none were
+  present** in this module. The 4 `retention_policy` references identified during pre-flight are
+  all on `azurerm_storage_account.share_properties` and `queue_properties.logging` (still
+  supported in 4.x) plus input-variable definitions. No removals were required.
+- `azurerm_storage_account_network_rules` (standalone resource) is retained. It is deprecated
+  in 4.x and will be removed in 5.x; a future minor release will consolidate it into the inline
+  `network_rules` block of `azurerm_storage_account`. Tracked for Phase 2.
+
+### Migration Notes for Consumers
+
+- Bump your root `azurerm` provider constraint to `~> 4.20`.
+- Ensure Terraform CLI `>= 1.10`.
+- Set `ARM_SUBSCRIPTION_ID` env var or `subscription_id` in your `provider "azurerm"` block —
+  azurerm 4.x requires it.
+- The module's public input/output surface is unchanged. No variable renames or removals.
+
+### Added
+
+- `azapi ~> 2.0` provider declaration in `versions.tf` (root and all examples).
+- Explicit `provider "azurerm" { features {} }` comment in example `versions.tf` clarifying
+  how consumers supply `subscription_id`.
+
+### Internal
+
+- Standardized `versions.tf` format across root and all examples.
+- Bumped `required_version` in root and examples to `>= 1.10`.
+
 ## [Unreleased](https://github.com/Azure/terraform-verified-module/tree/HEAD)
 
 **Merged pull requests:**
