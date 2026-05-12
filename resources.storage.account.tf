@@ -31,10 +31,10 @@ resource "azurerm_storage_account" "storage" {
   # Large File Share is not available for BlockBlobStorage accounts.
   large_file_share_enabled = var.account_kind != "BlockBlobStorage" && contains(["LRS", "ZRS"], var.account_replication_type)
 
-  sftp_enabled              = var.sftp_enabled
-  nfsv3_enabled             = var.nfsv3_enabled
-  is_hns_enabled            = var.nfsv3_enabled || var.sftp_enabled ? true : var.hns_enabled
-  enable_https_traffic_only = var.nfsv3_enabled ? false : var.https_traffic_only_enabled
+  sftp_enabled               = var.sftp_enabled
+  nfsv3_enabled              = var.nfsv3_enabled
+  is_hns_enabled             = var.nfsv3_enabled || var.sftp_enabled ? true : var.hns_enabled
+  https_traffic_only_enabled = var.nfsv3_enabled ? false : var.https_traffic_only_enabled
 
   dynamic "identity" {
     for_each = var.identity_type == null ? [] : ["enabled"]
