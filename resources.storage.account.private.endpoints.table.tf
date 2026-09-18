@@ -47,20 +47,24 @@ resource "azurerm_private_dns_zone" "table_dns_zone" {
   tags                = merge({ "ResourceName" = format("%s", "StorageAccount-Table-Private-DNS-Zone") }, var.add_tags, )
 }
 
+data "azurerm_private_dns_zone" "table_dns_zone" {
+  count               = var.existing_private_dns_zone != null && var.enable_table_private_endpoint ? 1 : 0
+  name                = var.existing_private_dns_zone
+  resource_group_name = local.resource_group_name
+}
+
 resource "azurerm_private_dns_zone_virtual_network_link" "table_vnet_link" {
-  count                 = var.existing_private_dns_zone == null && var.enable_table_private_endpoint ? 1 : 0
-  name                  = "vnet-private-zone-link"
-  resource_group_name   = local.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.table_dns_zone.0.name
-  virtual_network_id    = data.azurerm_virtual_network.table_vnet.0.id
-  tags                  = merge({ "ResourceName" = format("%s", "vnet-private-zone-link") }, var.add_tags, )
+  count               = var.existing_private_dns_zone == null && var.enable_table_private_endpoint ? 1 : 0
+  name                = "vnet-private-zone-link"
+  private_dns_zone_id = azurerm_private_dns_zone.table_dns_zone.0.id
+  virtual_network_id  = data.azurerm_virtual_network.table_vnet.0.id
+  tags                = merge({ "ResourceName" = format("%s", "vnet-private-zone-link") }, var.add_tags, )
 }
 
 resource "azurerm_private_dns_a_record" "table_a_record" {
   count               = var.enable_table_private_endpoint ? 1 : 0
   name                = azurerm_storage_table.table.0.name
-  zone_name           = var.existing_private_dns_zone == null ? azurerm_private_dns_zone.table_dns_zone.0.name : var.existing_private_dns_zone
-  resource_group_name = local.resource_group_name
+  private_dns_zone_id = var.existing_private_dns_zone == null ? azurerm_private_dns_zone.table_dns_zone.0.id : data.azurerm_private_dns_zone.table_dns_zone.0.id
   ttl                 = 300
   records             = [data.azurerm_private_endpoint_connection.table_pip.0.private_service_connection.0.private_ip_address]
 }

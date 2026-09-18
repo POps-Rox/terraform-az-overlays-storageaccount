@@ -47,20 +47,24 @@ resource "azurerm_private_dns_zone" "blob_dns_zone" {
   tags                = merge({ "ResourceName" = format("%s", "StorageAccount-Blob-Private-DNS-Zone") }, var.add_tags, )
 }
 
+data "azurerm_private_dns_zone" "blob_dns_zone" {
+  count               = var.existing_private_dns_zone != null && var.enable_blob_private_endpoint ? 1 : 0
+  name                = var.existing_private_dns_zone
+  resource_group_name = local.resource_group_name
+}
+
 resource "azurerm_private_dns_zone_virtual_network_link" "blob_vnet_link" {
-  count                 = var.existing_private_dns_zone == null && var.enable_blob_private_endpoint ? 1 : 0
-  name                  = "blob-private-zone-link"
-  resource_group_name   = local.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.blob_dns_zone.0.name
-  virtual_network_id    = data.azurerm_virtual_network.blob_vnet.0.id
-  tags                  = merge({ "ResourceName" = format("%s", "blob-private-zone-link") }, var.add_tags, )
+  count               = var.existing_private_dns_zone == null && var.enable_blob_private_endpoint ? 1 : 0
+  name                = "blob-private-zone-link"
+  private_dns_zone_id = azurerm_private_dns_zone.blob_dns_zone.0.id
+  virtual_network_id  = data.azurerm_virtual_network.blob_vnet.0.id
+  tags                = merge({ "ResourceName" = format("%s", "blob-private-zone-link") }, var.add_tags, )
 }
 
 resource "azurerm_private_dns_a_record" "blob_a_record" {
   count               = var.enable_blob_private_endpoint ? 1 : 0
   name                = azurerm_storage_account.storage.name
-  zone_name           = var.existing_private_dns_zone == null ? azurerm_private_dns_zone.blob_dns_zone.0.name : var.existing_private_dns_zone
-  resource_group_name = local.resource_group_name
+  private_dns_zone_id = var.existing_private_dns_zone == null ? azurerm_private_dns_zone.blob_dns_zone.0.id : data.azurerm_private_dns_zone.blob_dns_zone.0.id
   ttl                 = 300
   records             = [data.azurerm_private_endpoint_connection.blob_pip.0.private_service_connection.0.private_ip_address]
 }
