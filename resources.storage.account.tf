@@ -44,14 +44,6 @@ resource "azurerm_storage_account" "storage" {
     }
   }
 
-  dynamic "static_website" {
-    for_each = var.static_website_config == null ? [] : ["enabled"]
-    content {
-      index_document     = var.static_website_config.index_document
-      error_404_document = var.static_website_config.error_404_document
-    }
-  }
-
   dynamic "custom_domain" {
     for_each = var.custom_domain_name != null ? ["enabled"] : []
     content {
@@ -100,19 +92,6 @@ resource "azurerm_storage_account" "storage" {
         content {
           days = var.storage_blob_data_protection.container_delete_retention_policy_in_days - 1
         }
-      }
-    }
-  }
-
-  dynamic "queue_properties" {
-    for_each = var.queue_properties_logging != null && contains(["Storage", "StorageV2"], var.account_kind) && var.account_tier == "Premium" ? ["enabled"] : []
-    content {
-      logging {
-        delete                = var.queue_properties_logging.delete
-        read                  = var.queue_properties_logging.read
-        write                 = var.queue_properties_logging.write
-        version               = var.queue_properties_logging.version
-        retention_policy_days = var.queue_properties_logging.retention_policy_days
       }
     }
   }
@@ -171,4 +150,26 @@ resource "azurerm_storage_account" "storage" {
   }
 
   tags = merge({ "ResourceName" = format("%s", local.sa_name) }, local.default_tags, var.add_tags)
+}
+
+resource "azurerm_storage_account_static_website" "static_website" {
+  count = var.static_website_config == null ? 0 : 1
+
+  storage_account_id = azurerm_storage_account.storage.id
+  index_document     = var.static_website_config.index_document
+  error_404_document = var.static_website_config.error_404_document
+}
+
+resource "azurerm_storage_account_queue_properties" "queue_properties" {
+  count = var.queue_properties_logging != null && contains(["Storage", "StorageV2"], var.account_kind) && var.account_tier == "Premium" ? 1 : 0
+
+  storage_account_id = azurerm_storage_account.storage.id
+
+  logging {
+    delete                = var.queue_properties_logging.delete
+    read                  = var.queue_properties_logging.read
+    write                 = var.queue_properties_logging.write
+    version               = var.queue_properties_logging.version
+    retention_policy_days = var.queue_properties_logging.retention_policy_days
+  }
 }
